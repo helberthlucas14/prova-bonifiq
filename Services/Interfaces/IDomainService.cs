@@ -1,4 +1,6 @@
-﻿using ProvaPub.Models;
+﻿using ProvaPub.Dtos;
+using ProvaPub.Models;
+using ProvaPub.Models.Enum;
 
 namespace ProvaPub.Services.Interfaces
 {
@@ -13,5 +15,11 @@ namespace ProvaPub.Services.Interfaces
     public interface ICustomerService : IDomainService<Customer>
     {
         Task<bool> CanPurchase(int customerId, decimal purchaseValue);
+    }
+
+    public interface IOrderService : IDomainService<Order>
+    {
+        Task<OrderDto> PayOrderAsync(PaymentMethod paymentMethod, decimal paymentValue, int customerId);
+        Task<Order> InsertOrderAsync(Order order);
     }
 }

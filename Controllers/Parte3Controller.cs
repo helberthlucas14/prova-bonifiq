@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ProvaPub.Dtos;
 using ProvaPub.Models;
+using ProvaPub.Models.Enum;
 using ProvaPub.Repository;
 using ProvaPub.Services;
+using ProvaPub.Services.Interfaces;
 
 namespace ProvaPub.Controllers
 {
@@ -17,19 +20,25 @@ namespace ProvaPub.Controllers
     /// Demonstre como você faria isso.
     /// </summary>
     [ApiController]
-	[Route("[controller]")]
-	public class Parte3Controller :  ControllerBase
-	{
-		[HttpGet("orders")]
-		public async Task<Order> PlaceOrder(string paymentMethod, decimal paymentValue, int customerId)
-		{
-            var contextOptions = new DbContextOptionsBuilder<TestDbContext>()
-    .UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=Teste;Trusted_Connection=True;")
-    .Options;
+    [Route("[controller]")]
+    public class Parte3Controller : ControllerBase
+    {
+        private readonly IOrderService _orderService;
 
-            using var context = new TestDbContext(contextOptions);
+        public Parte3Controller(IOrderService orderService)
+        {
+            _orderService = orderService;
+        }
 
-            return await new OrderService(context).PayOrder(paymentMethod, paymentValue, customerId);
-		}
-	}
+        [HttpGet("orders")]
+        public async Task<IActionResult> PlaceOrder([FromQuery] PaymentMethod? paymentMethod, [FromQuery] decimal paymentValue, [FromQuery] int customerId)
+        {
+            if (!paymentMethod.HasValue)
+                return BadRequest("O parâmetro 'PaymentMethod' é obrigatório.");
+
+            var response = _orderService.PayOrderAsync((PaymentMethod)paymentMethod, paymentValue, customerId);
+
+            return Ok(response);
+        }
+    }
 }
