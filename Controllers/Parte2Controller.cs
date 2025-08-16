@@ -32,6 +32,7 @@ namespace ProvaPub.Controllers
         }
 
         [HttpGet("products")]
+        [ProducesResponseType(typeof(PagedList<Product>), StatusCodes.Status200OK)]
         public async Task<IActionResult> ListProducts([FromQuery] QueryStringParameters parameters, CancellationToken cancellation)
         {
             var response = await productService.PaginedListAsync(cancellation, parameters);
@@ -39,6 +40,7 @@ namespace ProvaPub.Controllers
         }
 
         [HttpGet("customers")]
+        [ProducesResponseType(typeof(PagedList<Customer>), StatusCodes.Status200OK)]
         public async Task<IActionResult> ListCustomers([FromQuery] QueryStringParameters parameters, CancellationToken cancellation)
         {
             var response = await customerService.PaginedListAsync(cancellation, parameters); ;

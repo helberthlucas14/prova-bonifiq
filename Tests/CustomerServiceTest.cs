@@ -3,7 +3,7 @@ using Moq;
 using ProvaPub.Exceptions;
 using ProvaPub.Repository.Interfaces;
 using ProvaPub.Services;
-using ProvaPub.Validator;
+using ProvaPub.Validators.DomainValidations;
 using Xunit;
 
 namespace ProvaPub.Tests

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ProvaPub.Dtos;
 using ProvaPub.Services;
 using ProvaPub.Services.Interfaces;
 
@@ -21,7 +22,9 @@ namespace ProvaPub.Controllers
 		}
 
 		[HttpGet]
-		public async Task<int> Index(CancellationToken cancellationToken)
+        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+        public async Task<int> Index(CancellationToken cancellationToken)
 		{
 			return await _randomService.GetRandomAsync(cancellationToken);
 		}

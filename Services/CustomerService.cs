@@ -3,7 +3,7 @@ using ProvaPub.Exceptions;
 using ProvaPub.Models;
 using ProvaPub.Repository.Interfaces;
 using ProvaPub.Services.Interfaces;
-using ProvaPub.Validator;
+using ProvaPub.Validators.DomainValidations;
 
 namespace ProvaPub.Services
 {

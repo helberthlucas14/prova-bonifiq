@@ -25,6 +25,8 @@ namespace ProvaPub.Controllers
         }
 
         [HttpGet("CanPurchase")]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> CanPurchase([FromQuery] int customerId, [FromQuery] decimal purchaseValue, CancellationToken cancellation)
         {

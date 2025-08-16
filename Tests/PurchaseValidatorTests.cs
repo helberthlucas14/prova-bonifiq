@@ -1,7 +1,7 @@
 ﻿using Bogus;
 using FluentAssertions;
 using ProvaPub.Models;
-using ProvaPub.Validator;
+using ProvaPub.Validators.DomainValidations;
 using System;
 using Xunit;
 

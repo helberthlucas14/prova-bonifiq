@@ -31,7 +31,10 @@ namespace ProvaPub.Controllers
         }
 
         [HttpPost("orders")]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiResponse<OrderReponseDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> PlaceOrder([FromBody] OrderRequestDto orderRequest, CancellationToken cancellationToken)
         {
             var response = await _orderService.PayOrderAsync(orderRequest, cancellationToken);
