@@ -1,4 +1,4 @@
-﻿namespace ProvaPub.Validator
+﻿namespace ProvaPub.Validator.DomainValidation
 {
     public class NotificationValidationHandler : ValidationHandler
     {

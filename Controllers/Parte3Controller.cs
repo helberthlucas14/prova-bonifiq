@@ -34,8 +34,6 @@ namespace ProvaPub.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> PlaceOrder([FromBody] OrderRequestDto orderRequest, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState); // Retorna erros de validação automáticos
             var response = await _orderService.PayOrderAsync(orderRequest, cancellationToken);
             return Ok(new ApiResponse<OrderReponseDto>(response));
         }

@@ -1,15 +1,14 @@
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using Microsoft.OpenApi.Models;
-using ProvaPub.Converters;
+using ProvaPub.Dtos;
 using ProvaPub.Filters;
-using ProvaPub.Models.Enum;
 using ProvaPub.Repository;
 using ProvaPub.Repository.Interfaces;
 using ProvaPub.Services;
 using ProvaPub.Services.Interfaces;
 using ProvaPub.Services.Strategy;
-using System.Text.Json;
+using ProvaPub.Validators.RequestValidatons;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,7 +18,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers(c =>
 {
     c.Filters.Add(typeof(ApiGlobalExceptionFilter));
-}).AddJsonOptions(options =>
+}).AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<OrderRequestDtoValidation>())
+    .AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
@@ -46,6 +46,7 @@ builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IRandomNumberRepository, RandomNumberRepository>();
+builder.Services.AddScoped<IValidator<OrderRequestDto>, OrderRequestDtoValidation>();
 
 builder.Services.AddDbContext<TestDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("ctx")));
