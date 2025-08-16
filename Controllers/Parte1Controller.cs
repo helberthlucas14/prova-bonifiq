@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ProvaPub.Services;
+using ProvaPub.Services.Interfaces;
 
 namespace ProvaPub.Controllers
 {
@@ -12,16 +13,17 @@ namespace ProvaPub.Controllers
 	[Route("[controller]")]
 	public class Parte1Controller :  ControllerBase
 	{
-		private readonly RandomService _randomService;
+		private readonly IRandomNumberService _randomService;
 
-		public Parte1Controller(RandomService randomService)
+		public Parte1Controller(IRandomNumberService randomService)
 		{
 			_randomService = randomService;
 		}
+
 		[HttpGet]
-		public async Task<int> Index()
+		public async Task<int> Index(CancellationToken cancellationToken)
 		{
-			return await _randomService.GetRandom();
+			return await _randomService.GetRandomAsync(cancellationToken);
 		}
 	}
 }

@@ -1,30 +1,36 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ProvaPub.Exceptions;
+using ProvaPub.Models;
+using ProvaPub.Repository;
 using ProvaPub.Repository.Interfaces;
 
-namespace ProvaPub.Repository
+public abstract class Repository<T> : IRepository<T> where T : Entity
 {
-    public class Repository<T> : IRepository<T> where T : class
+    protected readonly TestDbContext Context;
+    protected readonly DbSet<T> DbSet;
+
+    public Repository(TestDbContext context)
     {
-        protected readonly TestDbContext Context;
-        protected readonly DbSet<T> DbSet;
+        Context = context;
+        DbSet = context.Set<T>();
+    }
 
-        public Repository(TestDbContext context)
-        {
-            Context = context;
-            DbSet = context.Set<T>(); ;
-        }
+    public IQueryable<T> Query(CancellationToken cancellationToken = default)
+    {
+        return DbSet.AsNoTracking();
+    }
 
-        public IQueryable<T> Query(CancellationToken cancellationToken = default) => DbSet.AsQueryable();
-        public async Task<T?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
-        {
-            return await DbSet.AsNoTracking().FirstOrDefaultAsync(e => EF.Property<int>(e, "Id") == id, cancellationToken);
-        }
+    public async Task<T?> GetByIdAsync(int id, CancellationToken cancellationToken)
+    {
+        var entity = await DbSet.AsNoTracking()
+                              .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        NotFoundException.ThrowIfNull(entity, $"{typeof(T)} '{id}' not found.");
+        return entity;
+    }
 
-        public async Task AddAsync(T entity, CancellationToken cancellationToken = default)
-        {
-            await DbSet.AddAsync(entity, cancellationToken);
-            await Context.SaveChangesAsync(cancellationToken);
-        }
-
+    public async Task AddAsync(T entity, CancellationToken cancellationToken)
+    {
+        await DbSet.AddAsync(entity, cancellationToken);
+        await Context.SaveChangesAsync(cancellationToken);
     }
 }

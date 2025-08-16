@@ -27,9 +27,19 @@ namespace ProvaPub.Controllers
         }
 
         [HttpGet("CanPurchase")]
-        public async Task<bool> CanPurchase(int customerId, decimal purchaseValue)
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> CanPurchase([FromQuery] int customerId, [FromQuery] decimal purchaseValue, CancellationToken cancellation)
         {
-            return await _customerService.CanPurchase(customerId, purchaseValue);
+            var response = await _customerService.CanPurchaseAsync(customerId, purchaseValue, cancellation);
+            return Ok(new ApiResponse<bool>(response));
         }
+    }
+
+    public class ApiResponse<TData>
+    {
+        public TData Data { get; private set; }
+
+        public ApiResponse(TData data)
+            => Data = data;
     }
 }

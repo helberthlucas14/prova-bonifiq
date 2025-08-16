@@ -1,9 +1,14 @@
 ﻿namespace ProvaPub.Models
 {
-	public class Customer
-	{
-		public int Id { get; set; }
-		public string Name { get; set; }
-		public ICollection<Order> Orders { get; set; }
-	}
+    public abstract class Entity
+    {
+        public int Id { get; set; }
+    }
+    public class Customer : Entity
+    {
+        public string Name { get; set; } = string.Empty;
+        public ICollection<Order> Orders { get; set; } = new List<Order>();
+        public void CanPurchase(ValidationHandler handler, decimal purchaseValue, DateTime now)
+            => (new PurchaseValidator(this, handler, purchaseValue, now)).Validate();
+    }
 }

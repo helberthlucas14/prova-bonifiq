@@ -31,12 +31,15 @@ namespace ProvaPub.Controllers
         }
 
         [HttpGet("orders")]
-        public async Task<IActionResult> PlaceOrder([FromQuery] PaymentMethod? paymentMethod, [FromQuery] decimal paymentValue, [FromQuery] int customerId)
+        public async Task<IActionResult> PlaceOrder([FromQuery] PaymentMethod? paymentMethod,
+                                                    [FromQuery] decimal paymentValue,
+                                                    [FromQuery] int customerId,
+                                                    CancellationToken cancellationToken)
         {
             if (!paymentMethod.HasValue)
                 return BadRequest("O parâmetro 'PaymentMethod' é obrigatório.");
 
-            var response = _orderService.PayOrderAsync((PaymentMethod)paymentMethod, paymentValue, customerId);
+            var response = _orderService.PayOrderAsync((PaymentMethod)paymentMethod, paymentValue, customerId, cancellationToken);
 
             return Ok(response);
         }

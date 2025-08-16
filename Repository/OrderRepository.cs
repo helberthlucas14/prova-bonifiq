@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ProvaPub.Exceptions;
 using ProvaPub.Models;
 using ProvaPub.Repository.Interfaces;
 
@@ -10,11 +11,18 @@ namespace ProvaPub.Repository
         {
         }
 
-        public Task<Order?> GetByIdAsync(int id, bool includeCustomer, CancellationToken cancellationToken = default)
+        public async Task<Order?> GetByIdOrderWithCustomer(int id, CancellationToken cancellationToken)
         {
-            return includeCustomer
-                ? base.DbSet.Include(o => o.Customer).FirstOrDefaultAsync(o => o.Id == id, cancellationToken)
-                : DbSet.FirstOrDefaultAsync(o => o.Id == id, cancellationToken);
+            var order = await DbSet
+                .Include(o => o.Customer)
+                .FirstOrDefaultAsync(o => o.Id == id, cancellationToken);
+            NotFoundException.ThrowIfNull(order, $"Order '{id}' not found.");
+            return order;
+        }
+
+        public Task<PagedList<Order>> PaginedListAsync(CancellationToken cancellationToken, int page, int pageSize = 10)
+        {
+            throw new NotImplementedException();
         }
     }
 }

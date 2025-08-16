@@ -30,7 +30,7 @@ public class PagedList<T> where T : class
         IQueryable<T> source,
         int pageNumber,
         int pageSize,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         var count = await source.CountAsync(cancellationToken);
         var items = await source

@@ -1,50 +1,46 @@
-﻿using ProvaPub.Models;
+﻿using ProvaPub.Exceptions;
+using ProvaPub.Models;
 using ProvaPub.Repository.Interfaces;
 using ProvaPub.Services.Interfaces;
+using ProvaPub.Validator;
 
 namespace ProvaPub.Services
 {
     public class CustomerService : ICustomerService
     {
         private readonly ICustomerRepository _repository;
-        public CustomerService(ICustomerRepository repository)
+        private readonly IDateTimeProvider _dateTimeProvider;
+        public CustomerService(
+            ICustomerRepository repository,
+            IDateTimeProvider dateTimeProvider)
         {
             _repository = repository;
+            _dateTimeProvider = dateTimeProvider;
         }
 
-        public async Task<PagedList<Customer>> PaginedListAsync(int page, int pageSize = 10, CancellationToken cancellationToken = default)
+        public async Task<PagedList<Customer>> PaginedListAsync(CancellationToken cancellationToken, int page, int pageSize = 10)
         {
             return await PagedList<Customer>.ToPagedListAsync(_repository.Query(cancellationToken), page, pageSize, cancellationToken);
         }
 
-        public async Task<bool> CanPurchase(int customerId, decimal purchaseValue)
+        public async Task<bool> CanPurchaseAsync(int customerId, decimal purchaseValue, CancellationToken cancellation)
         {
             if (customerId <= 0) throw new ArgumentOutOfRangeException(nameof(customerId));
 
             if (purchaseValue <= 0) throw new ArgumentOutOfRangeException(nameof(purchaseValue));
 
-            ////Business Rule: Non registered Customers cannot purchase
-            //var customer = await _ctx.Customers.FindAsync(customerId);
-            //if (customer == null) throw new InvalidOperationException($"Customer Id {customerId} does not exists");
+            //Business Rule: Non registered Customers cannot purchase
+            var customer = await _repository.GetByIdCustomerWithOrder(customerId, cancellation);
 
-            ////Business Rule: A customer can purchase only a single time per month
-            //var baseDate = DateTime.UtcNow.AddMonths(-1);
-            //var ordersInThisMonth = await _ctx.Orders.CountAsync(s => s.CustomerId == customerId && s.OrderDate >= baseDate);
-            //if (ordersInThisMonth > 0)
-            //    return false;
+            var validationHandler = new NotificationValidationHandler();
 
-            ////Business Rule: A customer that never bought before can make a first purchase of maximum 100,00
-            //var haveBoughtBefore = await _ctx.Customers.CountAsync(s => s.Id == customerId && s.Orders.Any());
-            //if (haveBoughtBefore == 0 && purchaseValue > 100)
-            //    return false;
+            customer.CanPurchase(validationHandler, purchaseValue, _dateTimeProvider.UtcNow);
 
-            ////Business Rule: A customer can purchases only during business hours and working days
-            //if (DateTime.UtcNow.Hour < 8 || DateTime.UtcNow.Hour > 18 || DateTime.UtcNow.DayOfWeek == DayOfWeek.Saturday || DateTime.UtcNow.DayOfWeek == DayOfWeek.Sunday)
-            //    return false;
-
-
+            if (validationHandler.HasErrors())
+            {
+                throw new EntityValidationException("There are validation errors", validationHandler.Errors);
+            }
             return true;
         }
-
     }
 }

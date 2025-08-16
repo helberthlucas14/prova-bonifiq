@@ -1,5 +1,4 @@
 ﻿using ProvaPub.Models;
-using ProvaPub.Repository;
 using ProvaPub.Repository.Interfaces;
 using ProvaPub.Services.Interfaces;
 
@@ -7,16 +6,16 @@ namespace ProvaPub.Services
 {
     public class ProductService : IProductService
     {
-        private readonly IRepository<Product> _repository;
+        private readonly IProductRepository _repository;
 
-        public ProductService(IRepository<Product> repository)
+        public ProductService(IProductRepository repository)
         {
             _repository = repository;
         }
 
-        public async Task<PagedList<Product>> PaginedListAsync(int page, int pageSize = 10, CancellationToken cancellationToken = default)
+        public async Task<PagedList<Product>> PaginedListAsync(CancellationToken cancellationToken, int page, int pageSize = 10)
         {
-            return await PagedList<Product>.ToPagedListAsync(_repository.Query(), page, pageSize, cancellationToken);
+            return await PagedList<Product>.ToPagedListAsync(_repository.Query(cancellationToken), page, pageSize, cancellationToken);
         }
     }
 }

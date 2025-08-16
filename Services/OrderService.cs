@@ -11,43 +11,42 @@ namespace ProvaPub.Services
     public class OrderService : IOrderService
     {
         private readonly IOrderPaymentService _orderPayment;
-
         private readonly IOrderRepository _orderRepository;
-
         private readonly ICustomerRepository _customerRepository;
-        public OrderService(IOrderPaymentService paymentFactory, IOrderRepository repository, ICustomerRepository customerRepository)
+        public OrderService(
+            IOrderPaymentService paymentFactory,
+            IOrderRepository repository,
+            ICustomerRepository customerRepository)
         {
             _orderPayment = paymentFactory;
             _orderRepository = repository;
             _customerRepository = customerRepository;
         }
 
-        public async Task<OrderDto> PayOrderAsync(PaymentMethod paymentMethod, decimal paymentValue, int customerId)
+        public async Task<OrderDto> PayOrderAsync(PaymentMethod paymentMethod, decimal paymentValue, int customerId, CancellationToken cancellationToken)
         {
             var newOrder = new Order(paymentValue, customerId);
 
             var payment = _orderPayment.PayOrderAsync(newOrder, paymentMethod)
                 ?? throw new NotSupportedException($"Payment method {paymentMethod} is not supported.");
 
-            var order = await InsertOrderAsync(newOrder);
-
-            return new OrderDto(order.Id, order.Value, order.CustomerId, order.OrderDate, order.Customer);
+            return await InsertOrderAsync(newOrder, cancellationToken);
         }
 
-        public async Task<Order> InsertOrderAsync(Order order)
+        public async Task<OrderDto> InsertOrderAsync(Order order, CancellationToken cancellation)
         {
-            await _orderRepository.AddAsync(order);
-            var orderSaved = await _orderRepository.GetByIdAsync(order.Id, true);
-            return orderSaved ?? throw new InvalidOperationException($"Order with Id {order.Id} could not be found after insertion.");
-        }
+            var customer = await _customerRepository.GetByIdCustomerWithOrder(order.CustomerId, cancellation);
 
-        public Task<PagedList<Order>> PaginedListAsync(int page, int pageSize = 10, CancellationToken cancellationToken = default)
-        {
-            return PagedList<Order>.ToPagedListAsync(
-                 _orderRepository.Query(cancellationToken),
-                 page,
-                 pageSize,
-                 cancellationToken);
+            await _orderRepository.AddAsync(order, cancellation);
+            var orderSaved = await _orderRepository.GetByIdAsync(order.Id, cancellation)
+                ?? throw new InvalidOperationException($"Order with Id {order.Id} could not be found after insertion.");
+
+            return new OrderDto
+            {
+                Id = orderSaved.Id,
+                OrderDate = orderSaved.OrderDate.ToBrasiliaTime(),
+                CustomerId = orderSaved.CustomerId
+            };
         }
     }
 }
