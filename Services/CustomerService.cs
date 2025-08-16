@@ -1,4 +1,5 @@
-﻿using ProvaPub.Exceptions;
+﻿using ProvaPub.Dtos;
+using ProvaPub.Exceptions;
 using ProvaPub.Models;
 using ProvaPub.Repository.Interfaces;
 using ProvaPub.Services.Interfaces;
@@ -18,9 +19,10 @@ namespace ProvaPub.Services
             _dateTimeProvider = dateTimeProvider;
         }
 
-        public async Task<PagedList<Customer>> PaginedListAsync(CancellationToken cancellationToken, int page, int pageSize = 10)
+        public async Task<PagedList<Customer>> PaginedListAsync(CancellationToken cancellationToken, QueryStringParameters parameters)
         {
-            return await PagedList<Customer>.ToPagedListAsync(_repository.Query(cancellationToken), page, pageSize, cancellationToken);
+            var pagedList = await _repository.GetPagedListAsync(parameters, cancellationToken);
+            return pagedList;
         }
 
         public async Task<bool> CanPurchaseAsync(int customerId, decimal purchaseValue, CancellationToken cancellation)

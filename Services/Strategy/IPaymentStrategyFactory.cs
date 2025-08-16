@@ -10,6 +10,6 @@ namespace ProvaPub.Services.Strategy
 
     public interface IOrderPaymentService
     {
-        Task PayOrderAsync(Order order, PaymentMethod method);
+        Task<Order> PayOrderAsync(Order order, PaymentMethod method);
     }
 }

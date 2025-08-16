@@ -13,10 +13,10 @@ namespace ProvaPub.Services
             _factory = factory;
         }
 
-        public async Task PayOrderAsync(Order order, PaymentMethod method)
+        public async Task<Order> PayOrderAsync(Order order, PaymentMethod method)
         {
             var strategy = _factory.Create(method);
-            await strategy.ProcessPaymentAsync(order, method);
+            return await strategy.ProcessPaymentAsync(order, method);
         }
     }
 }

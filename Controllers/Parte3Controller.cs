@@ -30,18 +30,14 @@ namespace ProvaPub.Controllers
             _orderService = orderService;
         }
 
-        [HttpGet("orders")]
-        public async Task<IActionResult> PlaceOrder([FromQuery] PaymentMethod? paymentMethod,
-                                                    [FromQuery] decimal paymentValue,
-                                                    [FromQuery] int customerId,
-                                                    CancellationToken cancellationToken)
+        [HttpPost("orders")]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> PlaceOrder([FromBody] OrderRequestDto orderRequest, CancellationToken cancellationToken)
         {
-            if (!paymentMethod.HasValue)
-                return BadRequest("O parâmetro 'PaymentMethod' é obrigatório.");
-
-            var response = _orderService.PayOrderAsync((PaymentMethod)paymentMethod, paymentValue, customerId, cancellationToken);
-
-            return Ok(response);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState); // Retorna erros de validação automáticos
+            var response = await _orderService.PayOrderAsync(orderRequest, cancellationToken);
+            return Ok(new ApiResponse<OrderReponseDto>(response));
         }
     }
 }

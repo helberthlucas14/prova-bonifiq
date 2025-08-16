@@ -3,15 +3,13 @@
 
     public static class DateTimeExtensions
     {
-        public static DateTime ToBrasiliaTime(this DateTime utcDateTime)
+        public static DateTime ToBrasiliaTime(this DateTime dateTime)
         {
-            if (utcDateTime.Kind != DateTimeKind.Utc)
-            {
-                throw new ArgumentException("A data fornecida não está em UTC.");
-            }
+            if (dateTime.Kind != DateTimeKind.Utc)
+                dateTime = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
 
-            TimeZoneInfo timezoneInfo = TimeZoneInfo.FindSystemTimeZoneById("E. South America Standard Time");
-            return TimeZoneInfo.ConvertTimeFromUtc(utcDateTime, timezoneInfo);
+            var timeZone = TimeZoneInfo.FindSystemTimeZoneById("E. South America Standard Time");
+            return TimeZoneInfo.ConvertTimeFromUtc(dateTime, timeZone);
         }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ProvaPub.Dtos;
 using ProvaPub.Models;
+using ProvaPub.Models.Enum;
 using ProvaPub.Repository;
 using ProvaPub.Services;
 using ProvaPub.Services.Interfaces;
@@ -30,17 +32,17 @@ namespace ProvaPub.Controllers
         }
 
         [HttpGet("products")]
-        public async Task<IActionResult> ListProducts(int page, CancellationToken cancellationToken)
+        public async Task<IActionResult> ListProducts([FromQuery] QueryStringParameters parameters, CancellationToken cancellation)
         {
-            var response = await productService.PaginedListAsync(cancellationToken, page);
-            return Ok(response);
+            var response = await productService.PaginedListAsync(cancellation, parameters);
+            return Ok(new ApiResponse<PagedList<Product>>(response));
         }
 
         [HttpGet("customers")]
-        public async Task<IActionResult> ListCustomers(int page, CancellationToken cancellationToken)
+        public async Task<IActionResult> ListCustomers([FromQuery] QueryStringParameters parameters, CancellationToken cancellation)
         {
-            var response = await customerService.PaginedListAsync(cancellationToken, page);
-            return Ok(response);
+            var response = await customerService.PaginedListAsync(cancellation, parameters); ;
+            return Ok(new ApiResponse<PagedList<Customer>>(response));
         }
     }
 }

@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ProvaPub.Models;
-using ProvaPub.Repository;
-using ProvaPub.Services;
+using ProvaPub.Dtos;
 using ProvaPub.Services.Interfaces;
 
 namespace ProvaPub.Controllers
@@ -33,13 +31,5 @@ namespace ProvaPub.Controllers
             var response = await _customerService.CanPurchaseAsync(customerId, purchaseValue, cancellation);
             return Ok(new ApiResponse<bool>(response));
         }
-    }
-
-    public class ApiResponse<TData>
-    {
-        public TData Data { get; private set; }
-
-        public ApiResponse(TData data)
-            => Data = data;
     }
 }

@@ -1,9 +1,10 @@
-﻿using ProvaPub.Models;
+﻿using ProvaPub.Dtos;
+using ProvaPub.Models;
 
 namespace ProvaPub.Services.Interfaces
 {
     public interface IProductService : IDomainService<Product>
     {
-        Task<PagedList<Product>> PaginedListAsync(CancellationToken cancellationToken, int page, int pageSize = 10);
+        Task<PagedList<Product>> PaginedListAsync(CancellationToken cancellationToken, QueryStringParameters parameters);
     }
 }

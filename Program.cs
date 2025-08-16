@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
+using ProvaPub.Converters;
 using ProvaPub.Filters;
 using ProvaPub.Models.Enum;
 using ProvaPub.Repository;
@@ -8,6 +9,7 @@ using ProvaPub.Repository.Interfaces;
 using ProvaPub.Services;
 using ProvaPub.Services.Interfaces;
 using ProvaPub.Services.Strategy;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,9 +21,9 @@ builder.Services.AddControllers(c =>
     c.Filters.Add(typeof(ApiGlobalExceptionFilter));
 }).AddJsonOptions(options =>
 {
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-    options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
 });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

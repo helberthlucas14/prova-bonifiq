@@ -23,30 +23,36 @@ namespace ProvaPub.Services
             _customerRepository = customerRepository;
         }
 
-        public async Task<OrderDto> PayOrderAsync(PaymentMethod paymentMethod, decimal paymentValue, int customerId, CancellationToken cancellationToken)
+        public async Task<OrderReponseDto> PayOrderAsync(OrderRequestDto orderRequest, CancellationToken cancellationToken)
         {
-            var newOrder = new Order(paymentValue, customerId);
+            var orderCustomer = new Order(orderRequest.Value, orderRequest.CustomerId);
 
-            var payment = _orderPayment.PayOrderAsync(newOrder, paymentMethod)
-                ?? throw new NotSupportedException($"Payment method {paymentMethod} is not supported.");
+            var newOrder = await _orderPayment.PayOrderAsync(orderCustomer, orderRequest.PaymentMethod);
 
-            return await InsertOrderAsync(newOrder, cancellationToken);
+            var result = await InsertOrderAsync(newOrder, cancellationToken);
+
+            var response = new OrderReponseDto
+            {
+                Id = result.Id,
+                OrderDate = result.OrderDate.ToBrasiliaTime(),
+                CustomerId = result.CustomerId,
+                Value = result.Value,
+                PaymentMethod = orderRequest.PaymentMethod.ToString(),
+            };
+
+            return response;
         }
 
-        public async Task<OrderDto> InsertOrderAsync(Order order, CancellationToken cancellation)
+        public async Task<Order> InsertOrderAsync(Order order, CancellationToken cancellation)
         {
             var customer = await _customerRepository.GetByIdCustomerWithOrder(order.CustomerId, cancellation);
 
             await _orderRepository.AddAsync(order, cancellation);
+
             var orderSaved = await _orderRepository.GetByIdAsync(order.Id, cancellation)
                 ?? throw new InvalidOperationException($"Order with Id {order.Id} could not be found after insertion.");
 
-            return new OrderDto
-            {
-                Id = orderSaved.Id,
-                OrderDate = orderSaved.OrderDate.ToBrasiliaTime(),
-                CustomerId = orderSaved.CustomerId
-            };
+            return orderSaved;
         }
     }
 }

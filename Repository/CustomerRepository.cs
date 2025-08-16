@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ProvaPub.Dtos;
 using ProvaPub.Exceptions;
 using ProvaPub.Models;
 using ProvaPub.Repository.Interfaces;
@@ -22,5 +23,12 @@ namespace ProvaPub.Repository
             return Task.FromResult<Customer>(customer);
         }
 
+        public async Task<PagedList<Customer>> GetPagedListAsync(QueryStringParameters parameters, CancellationToken cancellationToken)
+        {
+            var query = DbSet.AsNoTracking()
+                 .AsQueryable();
+
+            return await PagedList<Customer>.ToPagedListAsync(query, parameters.PageNumber, parameters.PageSize, cancellationToken);
+        }
     }
 }
