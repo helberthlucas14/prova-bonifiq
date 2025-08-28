@@ -15,10 +15,7 @@ namespace ProvaPub.Repository
         public async Task<PagedList<Product>> GetPagedListAsync(QueryStringParameters parameters, CancellationToken cancellationToken)
         {
             var query = DbSet.AsNoTracking()
-                             .Skip((parameters.PageNumber - 1) * parameters.PageSize)
-                             .Take(parameters.PageSize)
                              .AsQueryable();
-
             return await PagedList<Product>.ToPagedListAsync(query, parameters.PageNumber, parameters.PageSize, cancellationToken);
         }
     }
